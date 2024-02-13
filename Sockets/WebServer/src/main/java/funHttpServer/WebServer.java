@@ -7,7 +7,9 @@ You can also do some other simple GET requests:
 3) /file/filename shows you the raw file (not as HTML)
 4) /multiply?num1=3&num2=4 multiplies the two inputs and responses with the result
 5) /github?query=users/amehlhase316/repos (or other GitHub repo owners) will lead to receiving
-   JSON which will for now only be printed in the console. See the todo below
+   JSON which will for now only be printed in the console.
+6) /
+7) /
 
 The reading of the request is done "manually", meaning no library that helps making things a 
 little easier is used. This is done so you see exactly how to pars the request and 
@@ -292,12 +294,71 @@ class WebServer {
              builder.append("\n");
              builder.append("<html><body><h1>Server Error</h1><p>Failed to process the request.</p></body></html>");
           }
-        } else {
-          // if the request is not recognized at all
-          builder.append("HTTP/1.1 400 Bad Request\n");
-          builder.append("Content-Type: text/html; charset=utf-8\n");
-          builder.append("\n");
-          builder.append("I am not sure what you want me to do...");
+           
+        } else if (request.contains("reverseStrings?")) {
+             Map<String, String> query_pairs = splitQuery(request.replace("reverseStrings?", ""));
+             
+             try {
+                 if (!query_pairs.containsKey("str1") || !query_pairs.containsKey("str2")) {
+                     throw new IllegalArgumentException("Both str1 and str2 parameters are required.");
+                 }
+         
+                 String str1 = query_pairs.get("str1");
+                 String str2 = query_pairs.get("str2");
+         
+                 // Reverse the strings
+                 String reversedStr1 = new StringBuilder(str1).reverse().toString();
+                 String reversedStr2 = new StringBuilder(str2).reverse().toString();
+         
+                 // Generate response
+                 builder.append("HTTP/1.1 200 OK\n");
+                 builder.append("Content-Type: text/html; charset=utf-8\n");
+                 builder.append("\n");
+                 builder.append("<html><body>");
+                 builder.append("Reversed str1: ").append(reversedStr1).append("<br>");
+                 builder.append("Reversed str2: ").append(reversedStr2);
+                 builder.append("</body></html>");
+         
+             } catch (IllegalArgumentException e) {
+                 builder.append("HTTP/1.1 400 Bad Request\n");
+                 builder.append("Content-Type: text/html; charset=utf-8\n");
+                 builder.append("\n");
+                 builder.append("<html><body>Error: ").append(e.getMessage()).append("</body></html>");
+             }
+        } else if (request.contains("nhlTeam?")) {
+             Map<String, String> stateToTeam = new HashMap<>();
+             // Example teams (expand this list as needed)
+             stateToTeam.put("New York", "New York Rangers");
+             stateToTeam.put("Pennsylvania", "Philadelphia Flyers");
+         
+             Map<String, String> query_pairs = splitQuery(request.replace("nhlTeam?", ""));
+         
+             try {
+                 if (!query_pairs.containsKey("state")) {
+                     throw new IllegalArgumentException("State parameter is required.");
+                 }
+         
+                 String state = query_pairs.get("state");
+                 String team = stateToTeam.getOrDefault(state, "No NHL team found for this state.");
+         
+                 // Generate response
+                 builder.append("HTTP/1.1 200 OK\n");
+                 builder.append("Content-Type: text/html; charset=utf-8\n");
+                 builder.append("\n");
+                 builder.append("<html><body>NHL Team: ").append(team).append("</body></html>");
+         
+             } catch (IllegalArgumentException e) {
+                 builder.append("HTTP/1.1 400 Bad Request\n");
+                 builder.append("Content-Type: text/html; charset=utf-8\n");
+                 builder.append("\n");
+                 builder.append("<html><body>Error: ").append(e.getMessage()).append("</body></html>");
+             }
+         } else {
+             // if the request is not recognized at all
+             builder.append("HTTP/1.1 400 Bad Request\n");
+             builder.append("Content-Type: text/html; charset=utf-8\n");
+             builder.append("\n");
+             builder.append("I am not sure what you want me to do...");
         }
 
         // Output
