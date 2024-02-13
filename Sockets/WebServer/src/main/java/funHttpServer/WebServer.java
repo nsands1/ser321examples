@@ -8,8 +8,8 @@ You can also do some other simple GET requests:
 4) /multiply?num1=3&num2=4 multiplies the two inputs and responses with the result
 5) /github?query=users/amehlhase316/repos (or other GitHub repo owners) will lead to receiving
    JSON which will for now only be printed in the console.
-6) /
-7) /
+6) /reverseStrings?str1=hello&str2=world -- reverses the two input strings and returns the result
+7) /nhlTeam?state=New York -- returns the NHL team for the specified state
 
 The reading of the request is done "manually", meaning no library that helps making things a 
 little easier is used. This is done so you see exactly how to pars the request and 
