@@ -237,28 +237,65 @@ class WebServer {
 
         } else if (request.contains("github?")) {
           // pulls the query from the request and runs it with GitHub's REST API
-          // check out https://docs.github.com/rest/reference/
-          //
-          // HINT: REST is organized by nesting topics. Figure out the biggest one first,
-          //     then drill down to what you care about
-          // "Owner's repo is named RepoName. Example: find RepoName's contributors" translates to
-          //     "/repos/OWNERNAME/REPONAME/contributors"
-
-          Map<String, String> query_pairs = new LinkedHashMap<String, String>();
-          query_pairs = splitQuery(request.replace("github?", ""));
-          String json = fetchURL("https://api.github.com/" + query_pairs.get("query"));
-          System.out.println(json);
-
-          builder.append("HTTP/1.1 200 OK\n");
-          builder.append("Content-Type: text/html; charset=utf-8\n");
-          builder.append("\n");
-          builder.append("Check the todos mentioned in the Java source file");
-          // TODO: Parse the JSON returned by your fetch and create an appropriate
-          // response based on what the assignment document asks for
-
+          try {
+             Map<String, String> query_pairs = new LinkedHashMap<String, String>();
+             query_pairs = splitQuery(request.replace("github?", ""));
+             if (!query_pairs.containsKey("query")) {
+                throw new IllegalArgumentException("Query parameter is missing.");
+             }
+             String json = fetchURL("https://api.github.com/" + query_pairs.get("query"));
+             if (json == null || json.isEmpty()) {
+                throw new Exception("Failed to fetch data from GitHub API.");
+             }
+             System.out.println(json);
+             // Starting the HTML response
+             StringBuilder htmlResponse = new StringBuilder();
+             htmlResponse.append("<html><body>");
+             htmlResponse.append("<h1>GitHub Repositories</h1><ul>");
+      
+             // Assuming jsonResponse is a valid JSON array string
+             // Splitting the JSON array elements for parsing
+             String[] repositories = json.substring(1, json.length() - 1).split("\\},\\{");
+          
+             for (String repo : repositories) {
+                // Cleaning up the repo string to ensure it can be parsed correctly
+                repo = repo.replaceAll("\\[|\\]", "");
+                if (!repo.startsWith("{")) {
+                   repo = "{" + repo;
+                }
+                if (!repo.endsWith("}")) {
+                   repo += "}";
+                }
+                // Extracting the full_name, id, and owner's login
+                String fullName = repo.substring(repo.indexOf("\"full_name\":\"") + 13, repo.indexOf("\",", repo.indexOf("\"full_name\":\"")));
+                String id = repo.substring(repo.indexOf("\"id\":") + 5, repo.indexOf(",", repo.indexOf("\"id\":")));
+                String ownerBlock = repo.substring(repo.indexOf("\"owner\":{") + 8, repo.indexOf("}", repo.indexOf("\"owner\":{")) + 1);
+                String ownerLogin = ownerBlock.substring(ownerBlock.indexOf("\"login\":\"") + 9, ownerBlock.indexOf("\",", ownerBlock.indexOf("\"login\":\"")));
+                // Adding the extracted information to the HTML response
+                htmlResponse.append("<li>")
+                   .append("ID: ").append(id)
+                   .append(", Full Name: ").append(fullName)
+                   .append(", Owner: ").append(ownerLogin)
+                   .append("</li>");
+             }
+             htmlResponse.append("</ul></body></html>");
+             builder.append("HTTP/1.1 200 OK\n");
+             builder.append("Content-Type: text/html; charset=utf-8\n");
+             builder.append("\n");
+             builder.append(htmlResponse.toString());
+          } catch (IllegalArgumentException e) {
+             builder.append("HTTP/1.1 400 Bad Request\n");
+             builder.append("Content-Type: text/html; charset=utf-8\n");
+             builder.append("\n");
+             builder.append("<html><body><h1>Error:</h1><p>").append(e.getMessage()).append("</p></body></html>");
+          } catch (Exception e) {
+             builder.append("HTTP/1.1 500 Internal Server Error\n");
+             builder.append("Content-Type: text/html; charset=utf-8\n");
+             builder.append("\n");
+             builder.append("<html><body><h1>Server Error</h1><p>Failed to process the request.</p></body></html>");
+          }
         } else {
           // if the request is not recognized at all
-
           builder.append("HTTP/1.1 400 Bad Request\n");
           builder.append("Content-Type: text/html; charset=utf-8\n");
           builder.append("\n");
