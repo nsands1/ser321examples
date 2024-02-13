@@ -327,9 +327,30 @@ class WebServer {
              }
         } else if (request.contains("nhlTeam?")) {
              Map<String, String> stateToTeam = new HashMap<>();
-             // Example teams (expand this list as needed)
-             stateToTeam.put("New York", "New York Rangers");
-             stateToTeam.put("Pennsylvania", "Philadelphia Flyers");
+             stateToTeam.put("Arizona", "Arizona Coyotes");
+             stateToTeam.put("California", "Anaheim Ducks, Los Angeles Kings, and San Jose Sharks");
+             stateToTeam.put("Colorado", "Colorado Avalanche");
+             stateToTeam.put("Florida", "Florida Panthers and Tampa Bay Lightning");
+             stateToTeam.put("Illinois", "Chicago Blackhawks");
+             stateToTeam.put("Massachusetts", "Boston Bruins");
+             stateToTeam.put("Michigan", "Detroit Red Wings");
+             stateToTeam.put("Minnesota", "Minnesota Wild");
+             stateToTeam.put("Missouri", "St. Louis Blues");
+             stateToTeam.put("Nevada", "Vegas Golden Knights");
+             stateToTeam.put("New Jersey", "New Jersey Devils");
+             stateToTeam.put("New York", "Buffalo Sabres,New York Islanders, and New York Rangers");
+             stateToTeam.put("North Carolina", "Carolina Hurricanes");
+             stateToTeam.put("Ohio", "Columbus Blue Jackets");
+             stateToTeam.put("Pennsylvania", "Philadelphia Flyers and Pittsburgh Penguins");
+             stateToTeam.put("Tennessee", "Nashville Predators");
+             stateToTeam.put("Texas", "Dallas Stars");
+             stateToTeam.put("Washington", "Seattle Kraken");
+             stateToTeam.put("District of Columbia", "Washington Capitals");
+             stateToTeam.put("Alberta", "Calgary Flames and Edmonton Oilers");
+             stateToTeam.put("British Columbia", "Vancouver Canucks");
+             stateToTeam.put("Manitoba", "Winnipeg Jets");
+             stateToTeam.put("Ontario", "Ottawa Senators and Toronto Maple Leafs");
+             stateToTeam.put("Quebec", "Montreal Canadiens");    
          
              Map<String, String> query_pairs = splitQuery(request.replace("nhlTeam?", ""));
          
